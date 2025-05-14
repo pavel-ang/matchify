@@ -1,26 +1,50 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useAuth0 } from "@auth0/auth0-react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from "./pages/Login";
+import ProfilePage from "./pages/Profile";
+import ChatPage from "./pages/Chat";
+import Navbar from "./components/navbar";
+import PrivateRoute from "./auth/PrivateRoute";
 
-function App() {
+const App = () => {
+  const { isAuthenticated, isLoading } = useAuth0();
+
+  if (isLoading) return <div>Loading...</div>; // wait for Auth0 to initialize
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/profile" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <ProfilePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <PrivateRoute>
+              <ChatPage />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
