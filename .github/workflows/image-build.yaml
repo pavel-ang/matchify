@@ -38,8 +38,8 @@ jobs:
         with:
           images: |
             pavel200303/matchify-frontend
-          flavor: |
-            latest=auto
+          tags: |
+            type=raw,value=latest
 
       - name: Build and push Docker image
         id: push
