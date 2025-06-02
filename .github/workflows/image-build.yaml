@@ -37,7 +37,9 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: |
-            pavel200303/matchify-frontend:latest
+            pavel200303/matchify-frontend
+          flavor: |
+            latest=auto
 
       - name: Build and push Docker image
         id: push
