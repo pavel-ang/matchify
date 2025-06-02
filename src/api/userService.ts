@@ -1,29 +1,60 @@
-import { useEffect, useState } from "react";
-import useAxiosInstance from "./axiosInstance";
+import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
+import { LocationDTO } from "../DTO/LocationDTO";
+import { UserPreferencesDTO } from "../DTO/UserPreferencesDTO";
 
 const useUserService = () => {
-  const axios = useAxiosInstance();
+  const { getAccessTokenSilently } = useAuth0();
 
-  const createOrUpdateUser = async (auth0Id: string, location: any, preferences: any) => {
-    const response = await axios.post("/users", {
-      auth0Id,
-      location,
-      preferences,
+  const getAxiosInstance = async () => {
+    const token = await getAccessTokenSilently();
+    return axios.create({
+      baseURL: "https://matchify.com/api",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
-    return response.data;
+  };
+
+  const createOrUpdateUser = async (
+    auth0Id: string,
+    location: LocationDTO,
+    preferences: UserPreferencesDTO
+  ) => {
+    const instance = await getAxiosInstance();
+    await instance.post("/users", {
+      user: { auth0Id, location, preferences },
+    });
+  };
+
+  const updateUserFullName = async (
+    auth0Id: string,
+    fullName: string
+  ) => {
+    const instance = await getAxiosInstance();
+    await instance.patch(`/users/${auth0Id}/full-name`, {
+      fullName,
+    });
   };
 
   const getUserById = async (id: string) => {
-    const response = await axios.get(`/users/${id}`);
+    const instance = await getAxiosInstance();
+    const response = await instance.get(`/users/${id}`);
     return response.data;
   };
 
   const getAllUsers = async () => {
-    const response = await axios.get("/users");
+    const instance = await getAxiosInstance();
+    const response = await instance.get("/users");
     return response.data;
   };
 
-  return { createOrUpdateUser, getUserById, getAllUsers };
+  return {
+    createOrUpdateUser,
+    updateUserFullName,
+    getUserById,
+    getAllUsers,
+  };
 };
 
 export default useUserService;

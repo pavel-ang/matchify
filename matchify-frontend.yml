@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matchify-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matchify-frontend
+  template:
+    metadata:
+      labels:
+        app: matchify-frontend
+    spec:
+      containers:
+        - name: matchify-frontend
+          image: matchify-frontend:14
+          # imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matchify-frontend
+spec:
+  selector:
+    app: matchify-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: NodePort

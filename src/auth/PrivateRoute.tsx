@@ -10,7 +10,7 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const { isAuthenticated, isLoading } = useAuth0();
 
   if (isLoading) {
-    return <div>Loading...</div>; // Wait here until Auth0 finishes loading
+    return <div>Loading...</div>; 
   }
 
   return isAuthenticated ? children : <Navigate to="/login" replace />;

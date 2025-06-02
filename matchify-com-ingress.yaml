@@ -1,0 +1,60 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: matchify-com-ingress
+  annotations:
+    konghq.com/strip-path: "false"
+spec:
+  ingressClassName: kong
+  tls:
+    - hosts:
+        - matchify.com
+      secretName: matchify-tls
+  rules:
+    - host: matchify.com
+      http:
+        paths:
+          # Frontend
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: matchify-frontend
+                port:
+                  number: 80
+
+          # User service
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: user-svc
+                port:
+                  number: 8082
+
+          # Message service
+          - path: /api/messages
+            pathType: Prefix
+            backend:
+              service:
+                name: message-svc
+                port:
+                  number: 8084
+
+          # Match service
+          - path: /api/matches
+            pathType: Prefix
+            backend:
+              service:
+                name: match-svc
+                port:
+                  number: 8083
+
+          # Swipe service
+          - path: /api/swipes
+            pathType: Prefix
+            backend:
+              service:
+                name: swipe-svc
+                port:
+                  number: 8085

@@ -5,31 +5,27 @@ const Navbar = () => {
   const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
 
   return (
-    <nav style={{ padding: "1rem", borderBottom: "1px solid #ccc" }}>
-      <Link to="/chat" style={{ marginRight: "1rem" }}>
-        Chat
-      </Link>
-      <Link to="/profile" style={{ marginRight: "1rem" }}>
-        Profile
-      </Link>
-
-      {isAuthenticated ? (
-        <button
-          onClick={() => logout({
-            logoutParams: {
-              returnTo: window.location.origin
-            }
-          })
-          }
-          style={{ marginLeft: "auto" }}
-        >
-          Logout
-        </button>
-      ) : (
-        <button onClick={() => loginWithRedirect()} style={{ marginLeft: "auto" }}>
-          Login
-        </button>
+    <nav style={{ padding: "1rem", borderBottom: "1px solid #ccc", display: "flex", gap: "1rem" }}>
+      {isAuthenticated && (
+        <>
+          <Link to="/browse">Browse</Link>
+          <Link to="/matches">Matches</Link>
+          <Link to="/chat">Chat</Link>
+          <Link to="/profile">Profile</Link>
+        </>
       )}
+
+      <div style={{ marginLeft: "auto" }}>
+        {isAuthenticated ? (
+          <button
+            onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+          >
+            Logout
+          </button>
+        ) : (
+          <button onClick={() => loginWithRedirect()}>Login</button>
+        )}
+      </div>
     </nav>
   );
 };
