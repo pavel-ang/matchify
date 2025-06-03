@@ -6,7 +6,7 @@ const useAxiosWithAuth = () => {
   const { getAccessTokenSilently } = useAuth0();
   const [instance, setInstance] = useState(() =>
     axios.create({
-      baseURL: "http://localhost:8080/api", // Adjust if needed
+      baseURL: "https://matchify.info/api",
     })
   );
 
@@ -16,7 +16,7 @@ const useAxiosWithAuth = () => {
         const token = await getAccessTokenSilently();
 
         const authAxios = axios.create({
-          baseURL: "http://localhost:8080/api", // same base
+          baseURL: "https://matchify.info/api",
           headers: {
             Authorization: `Bearer ${token}`,
           },

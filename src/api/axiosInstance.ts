@@ -1,33 +1,21 @@
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useEffect, useState } from "react";
 
 const useAxiosInstance = () => {
   const { getAccessTokenSilently } = useAuth0();
-  const [axiosInstance, setAxiosInstance] = useState<any>(null);
 
-  useEffect(() => {
-    const setup = async () => {
-      try {
-        const token = await getAccessTokenSilently();
+  const createAxiosInstance = async () => {
+    const token = await getAccessTokenSilently();
 
-        const instance = axios.create({
-          baseURL: "https://matchify.info",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    return axios.create({
+      baseURL: "https://matchify.info/api",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
 
-        setAxiosInstance(instance);
-      } catch (err) {
-        console.error("Token fetch failed", err);
-      }
-    };
-
-    setup();
-  }, [getAccessTokenSilently]);
-
-  return axiosInstance;
+  return createAxiosInstance;
 };
 
 export default useAxiosInstance;

@@ -10,6 +10,7 @@ const Profile = () => {
     createOrUpdateUser,
     updateUserFullName,
     getUserById,
+    deleteUser,
   } = useUserService();
 
   const [form, setForm] = useState<{
@@ -155,6 +156,22 @@ const Profile = () => {
         <button type="button" onClick={handleUpdatePreferences}>
           Update Preferences
         </button>
+        <button
+  type="button"
+  onClick={async () => {
+    if (!user?.sub) return;
+    try {
+      await deleteUser();
+      alert("Account deleted");
+    } catch (err) {
+      console.error("Failed to delete user:", err);
+    }
+  }}
+  style={{ marginTop: "1em", backgroundColor: "red", color: "white" }}
+>
+  Delete Account
+</button>
+
       </form>
     </div>
   );

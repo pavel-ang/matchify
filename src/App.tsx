@@ -1,5 +1,12 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+  useLocation,
+} from "react-router-dom";
 import LoginPage from "./pages/Login";
 import ProfilePage from "./pages/Profile";
 import ChatPage from "./pages/Chat";
@@ -8,34 +15,57 @@ import BrowsePage from "./pages/Browse";
 import Navbar from "./components/navbar";
 import PrivateRoute from "./auth/PrivateRoute";
 
-const App = () => {
+// Layout for authenticated pages
+const AuthenticatedLayout = () => (
+  <>
+    <Navbar />
+    <Outlet />
+  </>
+);
+
+// Handles routing + loading state
+const AppRoutes = () => {
   const { isAuthenticated, isLoading } = useAuth0();
+  const location = useLocation();
 
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={
-          isAuthenticated ? <Navigate to="/profile" replace /> : <Navigate to="/login" replace />
-        }/>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/profile" element={
-          <PrivateRoute><ProfilePage /></PrivateRoute>
-        }/>
-        <Route path="/chat" element={
-          <PrivateRoute><ChatPage /></PrivateRoute>
-        }/>
-        <Route path="/matches" element={
-          <PrivateRoute><MatchesPage /></PrivateRoute>
-        }/>
-        <Route path="/browse" element={
-          <PrivateRoute><BrowsePage /></PrivateRoute>
-        }/>
-      </Routes>
-    </Router>
+    <Routes location={location} key={location.pathname}>
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/profile" replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+      <Route path="/login" element={<LoginPage />} />
+
+      {/* Authenticated routes with layout */}
+      <Route
+        element={
+          <PrivateRoute>
+            <AuthenticatedLayout />
+          </PrivateRoute>
+        }
+      >
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/chat/:userId" element={<ChatPage />} />
+        <Route path="/matches" element={<MatchesPage />} />
+        <Route path="/browse" element={<BrowsePage />} />
+      </Route>
+    </Routes>
   );
 };
+
+const App = () => (
+  <Router>
+    <AppRoutes />
+  </Router>
+);
 
 export default App;

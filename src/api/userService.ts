@@ -1,28 +1,17 @@
-import axios from "axios";
-import { useAuth0 } from "@auth0/auth0-react";
+import useAxiosInstance from "./axiosInstance";
 import { LocationDTO } from "../DTO/LocationDTO";
 import { UserPreferencesDTO } from "../DTO/UserPreferencesDTO";
 
 const useUserService = () => {
-  const { getAccessTokenSilently } = useAuth0();
-
-  const getAxiosInstance = async () => {
-    const token = await getAccessTokenSilently();
-    return axios.create({
-      baseURL: "https://matchify.com/api",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  };
+  const getAxios = useAxiosInstance();
 
   const createOrUpdateUser = async (
     auth0Id: string,
     location: LocationDTO,
     preferences: UserPreferencesDTO
   ) => {
-    const instance = await getAxiosInstance();
-    await instance.post("/users", {
+    const axios = await getAxios();
+    await axios.post("/users", {
       user: { auth0Id, location, preferences },
     });
   };
@@ -31,29 +20,34 @@ const useUserService = () => {
     auth0Id: string,
     fullName: string
   ) => {
-    const instance = await getAxiosInstance();
-    await instance.patch(`/users/${auth0Id}/full-name`, {
+    const axios = await getAxios();
+    await axios.patch(`/users/${auth0Id}/full-name`, {
       fullName,
     });
   };
 
   const getUserById = async (id: string) => {
-    const instance = await getAxiosInstance();
-    const response = await instance.get(`/users/${id}`);
+    const axios = await getAxios();
+    const response = await axios.get(`/users/${id}`);
     return response.data;
   };
 
   const getAllUsers = async () => {
-    const instance = await getAxiosInstance();
-    const response = await instance.get("/users");
+    const axios = await getAxios();
+    const response = await axios.get("/users");
     return response.data;
   };
+  const deleteUser = async () => {
+  const instance = await getAxios();
+  await instance.delete("/users/me");
+};
 
   return {
     createOrUpdateUser,
     updateUserFullName,
     getUserById,
     getAllUsers,
+    deleteUser,
   };
 };
 
