@@ -11,6 +11,7 @@ const useAxiosInstance = () => {
       baseURL: "https://matchify.info/api",
       headers: {
         Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
       },
     });
   };
