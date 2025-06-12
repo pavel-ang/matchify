@@ -15,7 +15,6 @@ import BrowsePage from "./pages/Browse";
 import Navbar from "./components/navbar";
 import PrivateRoute from "./auth/PrivateRoute";
 
-// Layout for authenticated pages
 const AuthenticatedLayout = () => (
   <>
     <Navbar />
@@ -23,7 +22,6 @@ const AuthenticatedLayout = () => (
   </>
 );
 
-// Handles routing + loading state
 const AppRoutes = () => {
   const { isAuthenticated, isLoading } = useAuth0();
   const location = useLocation();
