@@ -1,28 +1,42 @@
-import useAxiosInstance from "./axiosInstance";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const useSwipeService = () => {
-  const getAxios = useAxiosInstance();
+  const { getAccessTokenSilently } = useAuth0();
+
+  const getHeaders = async () => {
+    const token = await getAccessTokenSilently();
+    return {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+  };
+
+  const baseUrl = "http://swipe-service-service:8085/api/swipe";
 
   const sendSwipe = async (swipe: {
     swiperId: string;
     swipeeId: string;
     liked: boolean;
   }) => {
-    const axios = await getAxios();
-    const response = await axios.post("/swipe", swipe);
-    return response.data;
+    const headers = await getHeaders();
+    const response = await fetch(`${baseUrl}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(swipe),
+    });
+    return await response.json();
   };
 
   const getSwipesBySwiperId = async (swiperId: string) => {
-    const axios = await getAxios();
-    const response = await axios.get(`/swipe/from/${swiperId}`);
-    return response.data;
+    const headers = await getHeaders();
+    const response = await fetch(`${baseUrl}/from/${swiperId}`, { headers });
+    return await response.json();
   };
 
   const getSwipesBySwipeeId = async (swipeeId: string) => {
-    const axios = await getAxios();
-    const response = await axios.get(`/swipe/to/${swipeeId}`);
-    return response.data;
+    const headers = await getHeaders();
+    const response = await fetch(`${baseUrl}/to/${swipeeId}`, { headers });
+    return await response.json();
   };
 
   return { sendSwipe, getSwipesBySwiperId, getSwipesBySwipeeId };

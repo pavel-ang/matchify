@@ -1,12 +1,24 @@
-import useAxiosInstance from "./axiosInstance";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const useMessageService = () => {
-  const getAxios = useAxiosInstance();
+  const { getAccessTokenSilently } = useAuth0();
+
+  const getHeaders = async () => {
+    const token = await getAccessTokenSilently();
+    return {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+  };
+
+  const baseUrl = "http://message-service-service:8084/api/messages";
 
   const getChatHistory = async (user1Id: string, user2Id: string) => {
-    const axios = await getAxios();
-    const response = await axios.get(`/messages/${user1Id}/${user2Id}`);
-    return response.data;
+    const headers = await getHeaders();
+    const response = await fetch(`${baseUrl}/${user1Id}/${user2Id}`, {
+      headers,
+    });
+    return await response.json();
   };
 
   const sendMessage = async (message: {
@@ -14,9 +26,13 @@ const useMessageService = () => {
     receiverId: string;
     content: string;
   }) => {
-    const axios = await getAxios();
-    const response = await axios.post("/messages", message);
-    return response.data;
+    const headers = await getHeaders();
+    const response = await fetch(`${baseUrl}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(message),
+    });
+    return await response.json();
   };
 
   return { getChatHistory, sendMessage };
