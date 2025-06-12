@@ -11,7 +11,7 @@ const useMatchService = () => {
     };
   };
 
-  const baseUrl = `${window.location.origin}/api/matches`;
+  const baseUrl = "https://match-service-service:8083/api/matches";
 
   const getMatchesForUser = async (userId: string) => {
     const headers = await getHeaders();
