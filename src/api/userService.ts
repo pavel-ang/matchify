@@ -13,7 +13,7 @@ const useUserService = () => {
     };
   };
 
-  const baseUrl = "http://user-service-wxgbg:8082/api/users";
+  const baseUrl = "/api/users";
 
   const createOrUpdateUser = async (
     auth0Id: string,
