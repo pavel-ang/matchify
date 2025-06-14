@@ -78,6 +78,19 @@ const useUserService = () => {
     const response = await fetch(`${baseUrl}/${id}`, { headers });
     return await response.json();
   };
+const getFullUserData = async () => {
+  const headers = await getHeaders();
+  const response = await fetch(`${baseUrl}/me/full`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch full user data");
+  }
+
+  return await response.json();
+};
 
   const getAllUsers = async () => {
     const headers = await getHeaders();
@@ -108,6 +121,7 @@ const useUserService = () => {
     getAllUsers,
     deleteUser,
     browseUsers,
+    getFullUserData,
   };
 };
 

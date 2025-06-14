@@ -26,6 +26,7 @@ const Profile = () => {
     deleteUser,
     updateSearchFilter,
     updateUserAttributes,
+    getFullUserData,
   } = useUserService();
 
   interface ProfileFormState {
@@ -56,29 +57,43 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
-      if (!user?.sub) return;
-      try {
-        const backendUser = await getUserById(user.sub);
-        const fullName = (user as any)?.user_metadata?.full_name || user.name || "";
+  const loadData = async () => {
+    if (!user?.sub) return;
+    try {
+      const backendUser = await getUserById(user.sub);
+      const fullData = await getFullUserData(); // ← GET full info
 
-        setForm((prev) => ({
-          ...prev,
-          fullName,
-          location: backendUser?.location ?? { city: "", country: "" },
-          preferences: backendUser?.preferences ?? {
-            darkMode: false,
-            emailNotifications: false,
-          },
-        }));
-      } catch (err) {
-        console.error("Failed to load user data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, [user]);
+      const fullName =
+        (user as any)?.user_metadata?.full_name || user.name || "";
+
+      setForm((prev) => ({
+        ...prev,
+        fullName,
+        location: backendUser?.location ?? { city: "", country: "" },
+        preferences: backendUser?.preferences ?? {
+          darkMode: false,
+          emailNotifications: false,
+        },
+        attributes: {
+          gender: fullData.gender ?? "",
+          age: fullData.age ?? 18,
+          interests: fullData.interests ?? [],
+        },
+        searchFilter: {
+          preferredGender: fullData.preferredGender ?? "",
+          interests: fullData.searchInterests ?? [],
+          minAge: fullData.minAge ?? 18,
+          maxAge: fullData.maxAge ?? 99,
+        },
+      }));
+    } catch (err) {
+      console.error("Failed to load full user data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  loadData();
+}, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
