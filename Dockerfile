@@ -1,14 +1,10 @@
-# Step 1: Build React app
-FROM node:18-alpine as build
+# Build phase
+FROM node:18 as builder
 WORKDIR /app
-
-# Install dependencies early (cached unless package*.json changes)
-COPY package*.json ./
-RUN npm install
-
-# Copy rest of the app and build
 COPY . .
-RUN npm run build
+RUN npm install && npm run build
 
-# Step 2: Serve with NGINX and reverse proxy
+# Serve phase
 FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
