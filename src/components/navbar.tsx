@@ -14,6 +14,7 @@ const Navbar = () => {
           <Link to="/profile">Profile</Link>
         </>
       )}
+      
 
       <div style={{ marginLeft: "auto" }}>
         {isAuthenticated ? (
