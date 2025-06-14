@@ -4,6 +4,19 @@ import useUserService from "../api/userService";
 import { LocationDTO } from "../DTO/LocationDTO";
 import { UserPreferencesDTO } from "../DTO/UserPreferencesDTO";
 
+interface SearchFilterDTO {
+  preferredGender: string;
+  interests: string[];
+  minAge: number;
+  maxAge: number;
+}
+
+interface UserAttributesDTO {
+  gender: string;
+  age: number;
+  interests: string[];
+}
+
 const Profile = () => {
   const { user, isAuthenticated } = useAuth0();
   const {
@@ -11,17 +24,34 @@ const Profile = () => {
     updateUserFullName,
     getUserById,
     deleteUser,
+    updateSearchFilter,
+    updateUserAttributes,
   } = useUserService();
 
-  const [form, setForm] = useState<{
+  interface ProfileFormState {
     fullName: string;
     location: LocationDTO;
     preferences: UserPreferencesDTO;
-  }>({
-    fullName: "",
-    location: { city: "", country: "" },
-    preferences: { darkMode: false, emailNotifications: false },
-  });
+    searchFilter: SearchFilterDTO;
+    attributes: UserAttributesDTO;
+  }
+  
+  const [form, setForm] = useState<ProfileFormState>({
+      fullName: "",
+      location: { city: "", country: "" },
+      preferences: { darkMode: false, emailNotifications: false },
+      searchFilter: {
+        preferredGender: "",
+        interests: [] as string[],
+        minAge: 18,
+        maxAge: 99,
+      },
+      attributes: {
+        gender: "",
+        age: 18,
+        interests: [] as string[],
+      },
+    });
 
   const [loading, setLoading] = useState(true);
 
@@ -30,17 +60,17 @@ const Profile = () => {
       if (!user?.sub) return;
       try {
         const backendUser = await getUserById(user.sub);
-        const fullName =
-          (user as any)?.user_metadata?.full_name || user.name || "";
+        const fullName = (user as any)?.user_metadata?.full_name || user.name || "";
 
-        setForm({
+        setForm((prev) => ({
+          ...prev,
           fullName,
           location: backendUser?.location ?? { city: "", country: "" },
           preferences: backendUser?.preferences ?? {
             darkMode: false,
             emailNotifications: false,
           },
-        });
+        }));
       } catch (err) {
         console.error("Failed to load user data:", err);
       } finally {
@@ -70,6 +100,24 @@ const Profile = () => {
           [key]: type === "checkbox" ? checked : value,
         },
       }));
+    } else if (name.startsWith("searchFilter.")) {
+      const key = name.split(".")[1] as keyof SearchFilterDTO;
+      setForm((prev) => ({
+        ...prev,
+        searchFilter: {
+          ...prev.searchFilter,
+          [key]: type === "number" ? parseInt(value) : value,
+        },
+      }));
+    } else if (name.startsWith("attributes.")) {
+      const key = name.split(".")[1] as keyof UserAttributesDTO;
+      setForm((prev) => ({
+        ...prev,
+        attributes: {
+          ...prev.attributes,
+          [key]: type === "number" ? parseInt(value) : value,
+        },
+      }));
     }
   };
 
@@ -93,6 +141,29 @@ const Profile = () => {
     }
   };
 
+  const handleSaveSearchFilter = async () => {
+    try {
+      await updateSearchFilter(form.searchFilter.preferredGender,
+  form.searchFilter.interests,
+  form.searchFilter.minAge,
+  form.searchFilter.maxAge);
+      alert("Search filter saved!");
+    } catch (err) {
+      console.error("Failed to update search filter", err);
+    }
+  };
+
+  const handleSaveAttributes = async () => {
+    try {
+      await updateUserAttributes(form.attributes.gender,
+  form.attributes.age,
+  form.attributes.interests);
+      alert("Your public info has been updated.");
+    } catch (err) {
+      console.error("Failed to update user attributes", err);
+    }
+  };
+
   if (!isAuthenticated || !user) return <p>Please log in</p>;
   if (loading) return <p>Loading profile...</p>;
 
@@ -102,6 +173,7 @@ const Profile = () => {
       <p>Email: {user.email}</p>
 
       <form>
+        <h3>General Info</h3>
         <label>
           Full Name:
           <input
@@ -111,7 +183,6 @@ const Profile = () => {
             onChange={handleChange}
           />
         </label>
-        <br />
         <button type="button" onClick={handleUpdateFullName}>
           Update Full Name
         </button>
@@ -142,7 +213,6 @@ const Profile = () => {
           />
           Dark Mode
         </label>
-        <br />
         <label>
           <input
             type="checkbox"
@@ -152,26 +222,110 @@ const Profile = () => {
           />
           Email Notifications
         </label>
-        <br />
         <button type="button" onClick={handleUpdatePreferences}>
-          Update Preferences
+          Save Preferences & Location
         </button>
-        <button
-  type="button"
-  onClick={async () => {
-    if (!user?.sub) return;
-    try {
-      await deleteUser();
-      alert("Account deleted");
-    } catch (err) {
-      console.error("Failed to delete user:", err);
-    }
-  }}
-  style={{ marginTop: "1em", backgroundColor: "red", color: "white" }}
->
-  Delete Account
-</button>
 
+        <h3>Your Public Info</h3>
+        <label>
+          Gender:
+          <input
+            type="text"
+            name="attributes.gender"
+            value={form.attributes.gender}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Age:
+          <input
+            type="number"
+            name="attributes.age"
+            value={form.attributes.age}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+  Interests:
+  <input
+    type="text"
+    name="attributes.interests"
+    value={form.attributes.interests.join(", ")}
+    onChange={(e) => {
+      const interests = e.target.value.split(",").map((i) => i.trim());
+      setForm((prev) => ({
+        ...prev,
+        attributes: { ...prev.attributes, interests },
+      }));
+    }}
+  />
+</label>
+        <button type="button" onClick={handleSaveAttributes}>
+          Save Public Info
+        </button>
+
+        <h3>Search Filter</h3>
+        <label>
+          Preferred Gender:
+          <input
+            type="text"
+            name="searchFilter.preferredGender"
+            value={form.searchFilter.preferredGender}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Min Age:
+          <input
+            type="number"
+            name="searchFilter.minAge"
+            value={form.searchFilter.minAge}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Max Age:
+          <input
+            type="number"
+            name="searchFilter.maxAge"
+            value={form.searchFilter.maxAge}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Interests:
+          <input
+            type="text"
+            name="searchFilter.interests"
+            value={form.searchFilter.interests.join(", ")}
+            onChange={(e) => {
+              const interests = e.target.value.split(",").map((i) => i.trim());
+              setForm((prev) => ({
+                ...prev,
+                searchFilter: { ...prev.searchFilter, interests },
+              }));
+            }}
+          />
+        </label>
+        <button type="button" onClick={handleSaveSearchFilter}>
+          Save Search Filter
+        </button>
+
+        <button
+          type="button"
+          onClick={async () => {
+            if (!user?.sub) return;
+            try {
+              await deleteUser();
+              alert("Account deleted");
+            } catch (err) {
+              console.error("Failed to delete user:", err);
+            }
+          }}
+          style={{ marginTop: "1em", backgroundColor: "red", color: "white" }}
+        >
+          Delete Account
+        </button>
       </form>
     </div>
   );

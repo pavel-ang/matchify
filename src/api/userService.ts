@@ -37,6 +37,42 @@ const useUserService = () => {
     });
   };
 
+  const updateSearchFilter = async (
+    preferredGender: string,
+    interests: string[],
+    minAge: number,
+    maxAge: number
+  ) => {
+    const headers = await getHeaders();
+    await fetch(`${baseUrl}/preferences`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({
+        preferredGender,
+        interests,
+        minAge,
+        maxAge,
+      }),
+    });
+  };
+
+  const updateUserAttributes = async (
+    gender: string,
+    age: number,
+    interests: string[]
+  ) => {
+    const headers = await getHeaders();
+    await fetch(`${baseUrl}/attributes`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({
+        gender,
+        age,
+        interests,
+      }),
+    });
+  };
+
   const getUserById = async (id: string) => {
     const headers = await getHeaders();
     const response = await fetch(`${baseUrl}/${id}`, { headers });
@@ -49,6 +85,15 @@ const useUserService = () => {
     return await response.json();
   };
 
+  const browseUsers = async () => {
+    const headers = await getHeaders();
+    const response = await fetch(`${baseUrl}/browse`, {
+      method: "GET",
+      headers,
+    });
+    return await response.json();
+  };
+
   const deleteUser = async () => {
     const headers = await getHeaders();
     await fetch(`${baseUrl}/me`, { method: "DELETE", headers });
@@ -57,9 +102,12 @@ const useUserService = () => {
   return {
     createOrUpdateUser,
     updateUserFullName,
+    updateSearchFilter,
+    updateUserAttributes,
     getUserById,
     getAllUsers,
     deleteUser,
+    browseUsers,
   };
 };
 

@@ -6,41 +6,47 @@ import UserCard from "../components/UserCard";
 
 interface User {
   id: string;
-  name: string; // no longer optional
+  name: string;
+  gender?: string;
+  age?: number;
+  interests?: string[];
   location: {
     city: string;
     country: string;
   };
 }
 
-
 const Browse = () => {
   const { user } = useAuth0();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const { getAllUsers } = useUserService();
+  const { browseUsers } = useUserService();
   const { sendSwipe } = useSwipeService();
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const fetched = await getAllUsers();
-        const mappedUsers = fetched.map((u: any) => ({
-  id: u.id || u._id || u.auth0Id,
-  name: u.name || u.fullName || "Unnamed",  // <- always resolves to string
+  const fetchUsers = async () => {
+    try {
+      const fetched = await browseUsers(); 
+      const mappedUsers = fetched.map((u: any) => ({
+  id: u.userId || u.id || u.auth0Id,
+  name: u.fullName || u.name || "Unnamed",
+  gender: u.gender,
+  age: u.age,
+  interests: u.interests || [],
   location: u.location ?? { city: "Unknown", country: "Unknown" },
 }));
-        setUsers(mappedUsers);
-      } catch (err) {
-        console.error("Failed to fetch users", err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchUsers();
-  }, [getAllUsers]);
+      setUsers(mappedUsers);
+    } catch (err) {
+      console.error("Failed to fetch users", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUsers();
+}, []);
+
 
   const handleLike = async (id: string) => {
     if (!user?.sub) return;
