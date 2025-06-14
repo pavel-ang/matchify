@@ -11,7 +11,7 @@ const useSwipeService = () => {
     };
   };
 
-  const baseUrl = `${window.location.origin}/api/swipe`;
+  const baseUrl = "/api/users";
 
   const sendSwipe = async (swipe: {
     swiperId: string;

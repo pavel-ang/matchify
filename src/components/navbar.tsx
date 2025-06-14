@@ -1,11 +1,20 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "react-router-dom";
+import NotificationBell from "./NotificationBell"; // Adjust the path if needed
 
 const Navbar = () => {
   const { isAuthenticated, logout, loginWithRedirect } = useAuth0();
 
   return (
-    <nav style={{ padding: "1rem", borderBottom: "1px solid #ccc", display: "flex", gap: "1rem" }}>
+    <nav
+      style={{
+        padding: "1rem",
+        borderBottom: "1px solid #ccc",
+        display: "flex",
+        alignItems: "center",
+        gap: "1rem",
+      }}
+    >
       {isAuthenticated && (
         <>
           <Link to="/browse">Browse</Link>
@@ -14,9 +23,10 @@ const Navbar = () => {
           <Link to="/profile">Profile</Link>
         </>
       )}
-      
 
-      <div style={{ marginLeft: "auto" }}>
+      {/* Spacer to push logout and bell to the right */}
+      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "1rem" }}>
+        {isAuthenticated && <NotificationBell />}
         {isAuthenticated ? (
           <button
             onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
