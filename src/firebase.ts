@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAjHRw...QeIQx-9XQ...FZDs", // от твоята конфигурация
+  apiKey: "AIzaSyAjHRw...QeIQx-9XQ...FZDs",
   authDomain: "matchify-35df8.firebaseapp.com",
   projectId: "matchify-35df8",
   storageBucket: "matchify-35df8.appspot.com",

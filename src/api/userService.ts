@@ -79,17 +79,41 @@ const useUserService = () => {
     return await response.json();
   };
 const getFullUserData = async () => {
-  const headers = await getHeaders();
-  const response = await fetch(`${baseUrl}/me/full`, {
-    method: "GET",
-    headers,
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch full user data");
+  let token;
+  try {
+    token = await getAccessTokenSilently();
+    if (!token) {
+      console.error("❌ Token is missing or undefined.");
+      throw new Error("Authentication token is missing.");
+    }
+  } catch (err) {
+    console.error("❌ Failed to get access token silently:", err);
+    throw new Error("User is not authenticated.");
   }
 
-  return await response.json();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await fetch("/api/users/me/full", {
+      method: "GET",
+      headers,
+    });
+
+    if (!response.ok) {
+      console.error(`❌ Backend returned ${response.status}: ${response.statusText}`);
+      const errorBody = await response.text();
+      console.error("Error body:", errorBody);
+      throw new Error("Failed to fetch full user data");
+    }
+
+    return await response.json();
+  } catch (err) {
+    console.error("❌ Network or server error while fetching full user data:", err);
+    throw err;
+  }
 };
 
   const getAllUsers = async () => {
