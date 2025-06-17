@@ -11,7 +11,7 @@ const useMessageService = () => {
     };
   };
 
-  const baseUrl = "/api/users";
+  const baseUrl = "/api/messages";
 
   const getChatHistory = async (user1Id: string, user2Id: string) => {
     const headers = await getHeaders();

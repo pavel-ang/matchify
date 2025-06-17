@@ -11,7 +11,7 @@ const useMatchService = () => {
     };
   };
 
-  const baseUrl = "/api/users";
+  const baseUrl = "/api/matches";
 
   const getMatchesForUser = async (userId: string) => {
     const headers = await getHeaders();

@@ -11,7 +11,7 @@ const useSwipeService = () => {
     };
   };
 
-  const baseUrl = "/api/users";
+  const baseUrl = "/api/swipe";
 
   const sendSwipe = async (swipe: {
     swiperId: string;
