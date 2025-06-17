@@ -67,25 +67,26 @@ const Profile = () => {
         (user as any)?.user_metadata?.full_name || user.name || "";
 
       setForm((prev) => ({
-        ...prev,
-        fullName,
-        location: backendUser?.location ?? { city: "", country: "" },
-        preferences: backendUser?.preferences ?? {
-          darkMode: false,
-          emailNotifications: false,
-        },
-        attributes: {
-          gender: fullData.gender ?? "",
-          age: fullData.age ?? 18,
-          interests: fullData.interests ?? [],
-        },
-        searchFilter: {
-          preferredGender: fullData.preferredGender ?? "",
-          interests: fullData.searchInterests ?? [],
-          minAge: fullData.minAge ?? 18,
-          maxAge: fullData.maxAge ?? 99,
-        },
-      }));
+  ...prev,
+  fullName: (user as any)?.user_metadata?.full_name || user.name || "",
+  location: backendUser?.location ?? { city: "", country: "" },
+  preferences: backendUser?.preferences ?? {
+    darkMode: false,
+    emailNotifications: false,
+  },
+  attributes: {
+    gender: fullData.attributes?.gender ?? "",
+    age: fullData.attributes?.age ?? 18,
+    interests: fullData.attributes?.interests ?? [],
+  },
+  searchFilter: {
+    preferredGender: fullData.searchFilter?.preferredGender ?? "",
+    interests: fullData.searchFilter?.interests ?? [],
+    minAge: fullData.searchFilter?.minAge ?? 18,
+    maxAge: fullData.searchFilter?.maxAge ?? 99,
+  },
+}));
+
     } catch (err) {
       console.error("Failed to load full user data:", err);
     } finally {
