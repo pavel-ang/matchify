@@ -1,3 +1,4 @@
+// Browse.tsx
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import useSwipeService from "../api/swipeService";
@@ -17,36 +18,36 @@ interface User {
 }
 
 const Browse = () => {
-  const { user } = useAuth0();
+  const { user, isLoading: authLoading } = useAuth0();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const { browseUsers } = useUserService();
   const { sendSwipe } = useSwipeService();
 
   useEffect(() => {
-  const fetchUsers = async () => {
-    try {
-      const fetched = await browseUsers(); 
-      const mappedUsers = fetched.map((u: any) => ({
-  id: u.userId || u.id || u.auth0Id,
-  name: u.fullName || u.name || "Unnamed",
-  gender: u.gender,
-  age: u.age,
-  interests: u.interests || [],
-  location: u.location ?? { city: "Unknown", country: "Unknown" },
-}));
+    const fetchUsers = async () => {
+      try {
+        const fetched = await browseUsers();
+        const mappedUsers = fetched.map((u: any) => ({
+          id: u.userId || u.id || u.auth0Id,
+          name: u.fullName || u.name || "Unnamed",
+          gender: u.gender ?? "Unknown",
+          age: u.age ?? 0,
+          interests: u.interests ?? [],
+          location: u.location ?? { city: "Unknown", country: "Unknown" },
+        }));
+        setUsers(mappedUsers);
+      } catch (err) {
+        console.error("Failed to fetch users", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      setUsers(mappedUsers);
-    } catch (err) {
-      console.error("Failed to fetch users", err);
-    } finally {
-      setLoading(false);
+    if (!authLoading) {
+      fetchUsers();
     }
-  };
-
-  fetchUsers();
-}, []);
-
+  }, [authLoading]);
 
   const handleLike = async (id: string) => {
     if (!user?.sub) return;
@@ -70,7 +71,7 @@ const Browse = () => {
     }
   };
 
-  if (loading) return <p>Loading users...</p>;
+  if (authLoading || loading) return <p>Loading users...</p>;
 
   return (
     <div>
