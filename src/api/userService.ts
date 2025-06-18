@@ -7,6 +7,7 @@ const useUserService = () => {
 
   const getHeaders = async () => {
     const token = await getAccessTokenSilently();
+    console.log("🔑 Token retrieved:", token);
     return {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
